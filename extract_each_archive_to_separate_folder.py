@@ -16,13 +16,14 @@ powershell_command = f'''
 $ErrorActionPreference = "Stop"
 $files = Get-ChildItem -Path "{directory}" -File
 foreach ($file in $files) {{
-    $outputFolder = $file.FullName -replace "(\\.zip|\\.rar|\\.7z)$"
+    $outputFolder = Join-Path -Path "{directory}" -ChildPath $file.BaseName
     if ($file.Extension -eq ".zip") {{
         Expand-Archive -Path $file.FullName -DestinationPath $outputFolder -Force
     }} elseif ($file.Extension -eq ".rar") {{
         & '{seven_zip_path}' x -r -o$outputFolder $file.FullName
     }} elseif ($file.Extension -eq ".7z") {{
-        & '{seven_zip_path}' x -r -o$outputFolder $file.FullName
+        $sevenZipOutputFolder = Join-Path -Path "{directory}" -ChildPath $file.BaseNameWithoutExtension
+        & '{seven_zip_path}' x -r -o$sevenZipOutputFolder $file.FullName
     }}
 }}
 '''
