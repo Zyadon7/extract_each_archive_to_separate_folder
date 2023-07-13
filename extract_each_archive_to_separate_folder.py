@@ -16,14 +16,22 @@ powershell_command = f'''
 $ErrorActionPreference = "Stop"
 $files = Get-ChildItem -Path "{directory}" -File
 foreach ($file in $files) {{
-    $outputFolder = Join-Path -Path "{directory}" -ChildPath $file.BaseName
     if ($file.Extension -eq ".zip") {{
+        $outputFolder = Join-Path -Path "{directory}" -ChildPath $file.BaseName
         Expand-Archive -Path $file.FullName -DestinationPath $outputFolder -Force
     }} elseif ($file.Extension -eq ".rar") {{
+        $outputFolder = Join-Path -Path "{directory}" -ChildPath $file.BaseName
         & '{seven_zip_path}' x -r -o$outputFolder $file.FullName
     }} elseif ($file.Extension -eq ".7z") {{
-        $sevenZipOutputFolder = Join-Path -Path "{directory}" -ChildPath $file.BaseNameWithoutExtension
-        & '{seven_zip_path}' x -r -o$sevenZipOutputFolder $file.FullName
+        $outputFolder = Join-Path -Path "{directory}" -ChildPath $file.BaseNameWithoutExtension
+        $tempOutputFolder = $outputFolder
+        $counter = 1
+        while (Test-Path -Path $outputFolder) {{
+            $outputFolder = Join-Path -Path "{directory}" -ChildPath "$tempOutputFolder$counter"
+            $counter++
+        }}
+        cmd.exe /C "md `"$outputFolder`""
+        & '{seven_zip_path}' x -r -o$outputFolder $file.FullName
     }}
 }}
 '''
