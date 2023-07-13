@@ -25,11 +25,10 @@ for filename in os.listdir(directory):
         shutil.unpack_archive(archive_path, output_folder, "rar")
     elif filename.endswith(".7z"):
         archive_path = os.path.join(directory, filename)
-        output_folder = os.path.splitext(archive_path)[0]
-        os.makedirs(output_folder, exist_ok=True)
+        output_file = os.path.splitext(archive_path)[0] + '.txt'
         with open(archive_path, 'rb') as file_ref:
             file_content = file_ref.read()
-            with lzma.open(output_folder, 'wb') as output_file:
+            with lzma.open(output_file, 'wb') as output_file:
                 output_file.write(file_content)
 
 # Open the directory in File Explorer
