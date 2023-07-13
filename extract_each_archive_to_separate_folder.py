@@ -3,7 +3,8 @@ import shutil
 import tkinter as tk
 from tkinter import filedialog
 import zipfile
-import lzma
+import patoolib
+import py7zr
 
 # Open file dialog to select directory
 root = tk.Tk()
@@ -20,11 +21,22 @@ for filename in os.listdir(directory):
             zip_ref.extractall(output_folder)
     elif filename.endswith(".7z"):
         archive_path = os.path.join(directory, filename)
-        output_file = os.path.splitext(archive_path)[0]
-        with open(archive_path, 'rb') as file_ref:
-            file_content = file_ref.read()
-            with lzma.open(output_file, 'wb') as output_file:
-                output_file.write(file_content)
+        output_folder = os.path.splitext(archive_path)[0]
+        os.makedirs(output_folder, exist_ok=True)
+        try:
+            with py7zr.SevenZipFile(archive_path, mode='r') as z7_ref:
+                z7_ref.extractall(output_folder)
+        except py7zr.exceptions.Bad7zFile:
+            patoolib.extract_archive(archive_path, outdir=output_folder)
+    elif filename.endswith(".rar"):
+        archive_path = os.path.join(directory, filename)
+        output_folder = os.path.splitext(archive_path)[0]
+        os.makedirs(output_folder, exist_ok=True)
+        try:
+            with py7zr.SevenZipFile(archive_path, mode='r') as z7_ref:
+                z7_ref.extractall(output_folder)
+        except py7zr.exceptions.Bad7zFile:
+            patoolib.extract_archive(archive_path, outdir=output_folder)
 
 # Open the directory in File Explorer
 if os.name == "nt":  # Windows OS
