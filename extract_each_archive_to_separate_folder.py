@@ -1,38 +1,30 @@
 import os
-import shutil
+import subprocess
 import tkinter as tk
 from tkinter import filedialog
-import zipfile
-import lzma
-import subprocess
 
-def unzip_archives(directory):
-    for filename in os.listdir(directory):
-        if filename.endswith(".zip"):
-            archive_path = os.path.join(directory, filename)
-            output_folder = os.path.splitext(archive_path)[0]
-            os.makedirs(output_folder, exist_ok=True)
-            with zipfile.ZipFile(archive_path, 'r') as zip_ref:
-                zip_ref.extractall(output_folder)
-        elif filename.endswith(".7z"):
-            archive_path = os.path.join(directory, filename)
-            output_folder = os.path.splitext(archive_path)[0]
-            os.makedirs(output_folder, exist_ok=True)
-            with open(archive_path, 'rb') as file_ref:
-                file_content = file_ref.read()
-                with lzma.open(output_folder, 'wb') as output_file:
-                    output_file.write(file_content)
-        elif filename.endswith(".rar"):
-            archive_path = os.path.join(directory, filename)
-            output_folder = os.path.splitext(archive_path)[0]
-            os.makedirs(output_folder, exist_ok=True)
-            subprocess.run(['unrar', 'x', archive_path, output_folder])
+# Open file dialog to select directory
+root = tk.Tk()
+root.withdraw()
+directory = filedialog.askdirectory(title="Select Directory")
 
-def main():
-    root = tk.Tk()
-    root.withdraw()
-    directory = filedialog.askdirectory(title="Select Directory")
-    unzip_archives(directory)
+# PowerShell command to extract archives in the selected directory
+powershell_command = f'''
+$ErrorActionPreference = "Stop"
+$files = Get-ChildItem -Path "{directory}" -File
+foreach ($file in $files) {{
+    $outputFolder = $file.FullName -replace "(\\.zip|\\.rar|\\.7z)$"
+    Expand-Archive -Path $file.FullName -DestinationPath $outputFolder -Force
+}}
+'''
 
-if __name__ == "__main__":
-    main()
+# Execute PowerShell command
+try:
+    subprocess.run(["powershell.exe", "-Command", powershell_command], check=True)
+    print("Archives extracted successfully.")
+except subprocess.CalledProcessError as e:
+    print(f"Error occurred while extracting archives: {e}")
+
+# Open the directory in File Explorer
+if os.name == "nt":  # Windows OS
+    os.startfile(directory)
