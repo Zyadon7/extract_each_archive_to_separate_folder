@@ -9,7 +9,7 @@ root.withdraw()
 directory = filedialog.askdirectory(title="Select Directory")
 
 # Set the path to the 7z executable
-seven_zip_path = "C:\\path\\to\\7z.exe"  # Update with the actual path to 7z.exe
+seven_zip_path = r"C:\Program Files\7-Zip\7z.exe"  # Update with the actual path to 7z.exe
 
 # PowerShell command to extract archives in the selected directory using 7z
 powershell_command = f'''
@@ -19,8 +19,10 @@ foreach ($file in $files) {{
     $outputFolder = $file.FullName -replace "(\\.zip|\\.rar|\\.7z)$"
     if ($file.Extension -eq ".zip") {{
         Expand-Archive -Path $file.FullName -DestinationPath $outputFolder -Force
-    }} elseif ($file.Extension -eq ".rar" -or $file.Extension -eq ".7z") {{
-        & '{seven_zip_path}' e $file.FullName -o$outputFolder -y
+    }} elseif ($file.Extension -eq ".rar") {{
+        & '{seven_zip_path}' x -r -o$outputFolder $file.FullName
+    }} elseif ($file.Extension -eq ".7z") {{
+        & '{seven_zip_path}' x -r -o$outputFolder $file.FullName
     }}
 }}
 '''
