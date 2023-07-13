@@ -23,7 +23,7 @@ foreach ($file in $files) {{
         $outputFolder = Join-Path -Path "{directory}" -ChildPath $file.BaseName
         & '{seven_zip_path}' x -r -o$outputFolder $file.FullName
     }} elseif ($file.Extension -eq ".7z") {{
-        $outputFolder = Join-Path -Path "{directory}" -ChildPath $file.BaseNameWithoutExtension
+        $outputFolder = Join-Path -Path "{directory}" -ChildPath ($file.BaseNameWithoutExtension -replace '[^a-zA-Z0-9]', '_')
         $tempOutputFolder = $outputFolder
         $counter = 1
         while (Test-Path -Path $outputFolder) {{
