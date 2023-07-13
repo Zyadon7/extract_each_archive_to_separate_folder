@@ -8,13 +8,17 @@ root = tk.Tk()
 root.withdraw()
 directory = filedialog.askdirectory(title="Select Directory")
 
-# PowerShell command to extract archives in the selected directory
+# PowerShell command to extract archives in the selected directory using 7z
 powershell_command = f'''
 $ErrorActionPreference = "Stop"
 $files = Get-ChildItem -Path "{directory}" -File
 foreach ($file in $files) {{
     $outputFolder = $file.FullName -replace "(\\.zip|\\.rar|\\.7z)$"
-    Expand-Archive -Path $file.FullName -DestinationPath $outputFolder -Force
+    if ($file.Extension -eq ".zip") {{
+        Expand-Archive -Path $file.FullName -DestinationPath $outputFolder -Force
+    }} elseif ($file.Extension -eq ".rar" -or $file.Extension -eq ".7z") {{
+        & '7z' e $file.FullName -o$outputFolder -y
+    }}
 }}
 '''
 
