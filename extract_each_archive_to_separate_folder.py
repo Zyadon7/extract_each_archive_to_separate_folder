@@ -8,6 +8,9 @@ root = tk.Tk()
 root.withdraw()
 directory = filedialog.askdirectory(title="Select Directory")
 
+# Set the path to the 7z executable
+seven_zip_path = "C:\\path\\to\\7z.exe"  # Update with the actual path to 7z.exe
+
 # PowerShell command to extract archives in the selected directory using 7z
 powershell_command = f'''
 $ErrorActionPreference = "Stop"
@@ -17,7 +20,7 @@ foreach ($file in $files) {{
     if ($file.Extension -eq ".zip") {{
         Expand-Archive -Path $file.FullName -DestinationPath $outputFolder -Force
     }} elseif ($file.Extension -eq ".rar" -or $file.Extension -eq ".7z") {{
-        & '7z' e $file.FullName -o$outputFolder -y
+        & '{seven_zip_path}' e $file.FullName -o$outputFolder -y
     }}
 }}
 '''
