@@ -3,8 +3,7 @@ import shutil
 import tkinter as tk
 from tkinter import filedialog
 import zipfile
-import rarfile
-import py7zr
+from pyunpack import Archive
 
 # Open file dialog to select directory
 root = tk.Tk()
@@ -23,14 +22,12 @@ for filename in os.listdir(directory):
         archive_path = os.path.join(directory, filename)
         output_folder = os.path.splitext(archive_path)[0]
         os.makedirs(output_folder, exist_ok=True)
-        with rarfile.RarFile(archive_path, 'r') as rar_ref:
-            rar_ref.extractall(output_folder)
+        Archive(archive_path).extractall(output_folder)
     elif filename.endswith(".7z"):
         archive_path = os.path.join(directory, filename)
         output_folder = os.path.splitext(archive_path)[0]
         os.makedirs(output_folder, exist_ok=True)
-        with py7zr.SevenZipFile(archive_path, mode='r') as z7_ref:
-            z7_ref.extractall(output_folder)
+        Archive(archive_path).extractall(output_folder)
 
 # Open the directory in File Explorer
 if os.name == "nt":  # Windows OS
